@@ -4,19 +4,28 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { OwnedDoc, SharedDoc } from "../page";
+import type { SeededUser } from "@/lib/current-user";
+import { ShareModal } from "./ShareModal";
 
 export function DocumentsView({
   owned,
   shared,
+  users,
+  currentUserId,
 }: {
   owned: OwnedDoc[];
   shared: SharedDoc[];
+  users: SeededUser[];
+  currentUserId: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [shareTarget, setShareTarget] = useState<{ id: string; title: string } | null>(null);
+
+  const shareCandidates = users.filter((u) => u.id !== currentUserId);
 
   async function run(fn: () => Promise<Response>) {
     setBusy(true);
@@ -130,6 +139,12 @@ export function DocumentsView({
                 ) : (
                   <>
                     <RowButton
+                      onClick={() => setShareTarget({ id: doc.id, title: doc.title })}
+                      disabled={busy}
+                    >
+                      Share
+                    </RowButton>
+                    <RowButton
                       onClick={() => {
                         setEditingId(doc.id);
                         setEditTitle(doc.title);
@@ -179,6 +194,15 @@ export function DocumentsView({
           </ul>
         )}
       </section>
+
+      {shareTarget && (
+        <ShareModal
+          docId={shareTarget.id}
+          docTitle={shareTarget.title}
+          candidates={shareCandidates}
+          onClose={() => setShareTarget(null)}
+        />
+      )}
     </div>
   );
 }

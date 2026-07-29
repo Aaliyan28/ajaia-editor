@@ -58,7 +58,12 @@ export default async function Home() {
     <div className="min-h-screen">
       <Header currentUserId={currentUser.id} users={users} />
       <main className="mx-auto max-w-4xl px-6 py-10">
-        <DocumentsView owned={owned} shared={shared} />
+        <DocumentsView
+          owned={owned}
+          shared={shared}
+          users={users}
+          currentUserId={currentUser.id}
+        />
       </main>
     </div>
   );
